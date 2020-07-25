@@ -1,0 +1,13 @@
+logging:
+  file: "/home/andreyakor/Документы/OTUS/Разработчик Golang/Домашки/image_previewer.log"
+  level: "debug"
+
+http:
+  host: "0.0.0.0"
+  port: 6080
+
+client:
+  timeout: "30s"
+
+cache:
+  capacity: 3

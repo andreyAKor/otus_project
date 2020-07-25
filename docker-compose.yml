@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  image_previewer:
+    build:
+      context: .
+      dockerfile: build/package/Dockerfile
+    restart: on-failure
+    ports:
+      - "6080:6080"
+    expose:
+      - 6080
+    environment:
+      HTTP_HOST: "0.0.0.0"
+      HTTP_PORT: 6080
+      CACHE_CAPACITY: 3
+    volumes:
+      - /var/log/image_previewer/:/var/log/image_previewer/
+      - /tmp/:/tmp/
