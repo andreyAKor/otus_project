@@ -18,10 +18,11 @@ Attaching to otus_project_image_previewer_1
 ```
 
 Сервис поднимается на локальном хосте на порту 6080.
-По умолчание настроено кеширование только 3-х последних нарезанных изображений.
+По умолчанию настроено кеширование только 3-х последних нарезанных изображений. Все нарезанные изображения сохраняются в папке `/tmp`.
 
 Имеется исходное изображение http://www.audubon.org/sites/default/files/a1_1902_16_barred-owl_sandra_rothenberg_kk.jpg размером 1714px × 1207px.
-В браузере проверяем различные варианты нарезки сервисом этого изображение:
+
+В браузере проверяем различные варианты нарезки этого изображение:
 - размер нарезки 428px × 301px: http://localhost:6080/428/301/www.audubon.org/sites/default/files/a1_1902_16_barred-owl_sandra_rothenberg_kk.jpg
 - размер нарезки 500px × 200px: http://localhost:6080/500/200/www.audubon.org/sites/default/files/a1_1902_16_barred-owl_sandra_rothenberg_kk.jpg
 - размер нарезки 300px × 200px: http://localhost:6080/300/200/www.audubon.org/sites/default/files/a1_1902_16_barred-owl_sandra_rothenberg_kk.jpg
