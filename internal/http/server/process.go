@@ -8,9 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	ErrBadGateway = errors.New("bad gateway")
-)
+var ErrBadGateway = errors.New("bad gateway")
 
 // Get image and process preparing preview image.
 func (s *Server) process(w http.ResponseWriter, r *http.Request) (*[]byte, error) {

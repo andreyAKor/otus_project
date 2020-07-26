@@ -24,11 +24,16 @@ func New(filepath, level string) *Log {
 	}
 }
 
+// Closing write to file.
+func (l *Log) Close() error {
+	return l.file.Close()
+}
+
 // Init is using to initialize the Zerolog globally.
 func (l *Log) Init() error {
 	var err error
 
-	l.file, err = os.OpenFile(l.filepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	l.file, err = os.OpenFile(l.filepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
 	if err != nil {
 		return errors.Wrapf(err, "error creating file %q", l.filepath)
 	}
@@ -65,9 +70,4 @@ func (l *Log) Init() error {
 	}
 
 	return nil
-}
-
-// Closing write to file.
-func (l *Log) Close() error {
-	return l.file.Close()
 }

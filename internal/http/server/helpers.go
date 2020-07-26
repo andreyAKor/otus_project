@@ -9,9 +9,7 @@ import (
 
 var (
 	ErrInvalidURIFormat = errors.New("invalid URI format")
-)
 
-var (
 	reParseURI = regexp.MustCompile(`/([\d]+)/([\d]+)/(.+)`)
 )
 

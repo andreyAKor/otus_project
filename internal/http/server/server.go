@@ -24,9 +24,9 @@ const (
 
 var (
 	ErrServerNotInit = errors.New("server not init")
-)
 
-var _ io.Closer = (*Server)(nil)
+	_ io.Closer = (*Server)(nil)
+)
 
 type Server struct {
 	client client.Client

@@ -252,6 +252,7 @@ func getClientResponseHeaders() http.Header {
 
 	return h
 }
+
 func getClientRequestOK(ctrl *gomock.Controller, src string, req *http.Request) *clientMocks.MockClient {
 	content := []byte(imageContent)
 

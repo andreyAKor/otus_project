@@ -18,9 +18,9 @@ const (
 
 var (
 	ErrKeyIsSet = errors.New("key is set")
-)
 
-var _ Cache = (*lruCache)(nil)
+	_ Cache = (*lruCache)(nil)
+)
 
 type lruCache struct {
 	capacity int
