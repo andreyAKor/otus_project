@@ -9,7 +9,7 @@ run-dev: build
 	'$(GOBIN)/$(PROJECT)' --config='$(GOBASE)/configs/$(PROJECT).yml'
 
 run:
-	docker-compose up
+	docker-compose up --build 
 
 test:
 	go test -race -count 100 ./...
