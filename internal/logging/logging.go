@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"io"
 	"os"
 	"strings"
 
@@ -8,6 +9,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
+
+var _ io.Closer = (*Log)(nil)
 
 type Log struct {
 	filepath, level string
