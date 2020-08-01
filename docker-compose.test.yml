@@ -1,12 +1,31 @@
 version: "3"
 
+networks:
+  nginx:
+    driver: bridge
+
 services:
   integration_tests:
     build: tests
+    depends_on:
+      - nginx
     command: "true"
     links:
       - image_previewer
+    networks:
+      - nginx
 
   image_previewer:
     environment:
       CACHE_CAPACITY: 3
+    networks:
+      - nginx
+
+  nginx:
+    image: nginx:1.19.1-alpine
+    expose:
+      - "80"
+    volumes:
+      - ./tests/nginx/data:/usr/share/nginx/html:ro
+    networks:
+      - nginx

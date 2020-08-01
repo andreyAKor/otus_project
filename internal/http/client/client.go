@@ -28,7 +28,7 @@ func New(timeout string) (Client, error) {
 }
 
 // Make request to source.
-func (c *client) Request(source string, r *http.Request) (*http.Response, *[]byte, error) {
+func (c *client) Request(source string, r *http.Request) (*http.Response, []byte, error) {
 	log.Info().
 		Str("source", source).
 		Msg("before request")
@@ -46,7 +46,7 @@ func (c *client) Request(source string, r *http.Request) (*http.Response, *[]byt
 	}
 
 	log.Info().
-		Int("length", len(*content)).
+		Int("length", len(content)).
 		Str("source", source).
 		Msg("after request")
 
@@ -73,13 +73,17 @@ func (c *client) prepareRequest(source string, r *http.Request) (*http.Request, 
 	}
 
 	// Copy headers
-	req.Header = r.Header
+	for key, values := range r.Header {
+		for _, value := range values {
+			req.Header.Add(key, value)
+		}
+	}
 
 	return req, nil
 }
 
 // Make request.
-func (c *client) request(client *http.Client, req *http.Request) (*http.Response, *[]byte, error) {
+func (c *client) request(client *http.Client, req *http.Request) (*http.Response, []byte, error) {
 	rsp, err := client.Do(req)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "client request fail")
@@ -94,7 +98,7 @@ func (c *client) request(client *http.Client, req *http.Request) (*http.Response
 		return nil, nil, errors.Wrap(err, "copying from response body fail")
 	}
 
-	return rsp, &content, nil
+	return rsp, content, nil
 }
 
 func (c client) normalizeURL(url string) string {

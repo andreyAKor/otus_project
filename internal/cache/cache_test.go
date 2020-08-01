@@ -2,7 +2,6 @@ package cache
 
 import (
 	"math/rand"
-	"net/http"
 	"strconv"
 	"sync"
 	"testing"
@@ -19,10 +18,10 @@ func TestCache(t *testing.T) {
 		c, _ := New(10)
 		defer c.Close()
 
-		_, _, ok, _ := c.Get("aaa")
+		_, ok, _ := c.Get("aaa")
 		require.False(t, ok)
 
-		_, _, ok, _ = c.Get("bbb")
+		_, ok, _ = c.Get("bbb")
 		require.False(t, ok)
 	})
 	t.Run("simple", func(t *testing.T) {
@@ -30,30 +29,30 @@ func TestCache(t *testing.T) {
 		defer c.Close()
 
 		v1 := []byte("100")
-		err := c.Set("aaa", http.Header{}, &v1)
+		err := c.Set("aaa", v1)
 		require.NoError(t, err)
 
 		v2 := []byte("200")
-		err = c.Set("bbb", http.Header{}, &v2)
+		err = c.Set("bbb", v2)
 		require.NoError(t, err)
 
-		_, val, ok, _ := c.Get("aaa")
+		val, ok, _ := c.Get("aaa")
 		require.True(t, ok)
-		require.Equal(t, v1, *val)
+		require.Equal(t, v1, val)
 
-		_, val, ok, _ = c.Get("bbb")
+		val, ok, _ = c.Get("bbb")
 		require.True(t, ok)
-		require.Equal(t, v2, *val)
+		require.Equal(t, v2, val)
 
 		v3 := []byte("300")
-		err = c.Set("aaa", http.Header{}, &v3)
+		err = c.Set("aaa", v3)
 		require.Equal(t, ErrKeyIsSet, errors.Cause(err))
 
-		_, val, ok, _ = c.Get("aaa")
+		val, ok, _ = c.Get("aaa")
 		require.True(t, ok)
-		require.Equal(t, v1, *val)
+		require.Equal(t, v1, val)
 
-		_, val, ok, _ = c.Get("ccc")
+		val, ok, _ = c.Get("ccc")
 		require.False(t, ok)
 		require.Nil(t, val)
 	})
@@ -62,47 +61,47 @@ func TestCache(t *testing.T) {
 		defer c.Close()
 
 		v1 := []byte("100")
-		err := c.Set("aaa", http.Header{}, &v1)
+		err := c.Set("aaa", v1)
 		require.NoError(t, err)
 
 		// [aaa] => [9, 8, 7, 6, 5]
 		for i := 0; i < 10; i++ {
 			s := strconv.Itoa(i)
 			v := []byte(s)
-			_ = c.Set(Key(s), http.Header{}, &v)
+			_ = c.Set(Key(s), v)
 		}
 
-		_, val, ok, _ := c.Get("9")
+		val, ok, _ := c.Get("9")
 		require.True(t, ok)
-		require.Equal(t, []byte("9"), *val)
+		require.Equal(t, []byte("9"), val)
 
-		_, val, ok, _ = c.Get("5")
+		val, ok, _ = c.Get("5")
 		require.True(t, ok)
-		require.Equal(t, []byte("5"), *val)
+		require.Equal(t, []byte("5"), val)
 
-		_, val, ok, _ = c.Get("aaa")
+		val, ok, _ = c.Get("aaa")
 		require.False(t, ok)
 		require.Nil(t, val)
 
 		// [9, 8, 7, 6, 5] => [6, 5, 9, 8, 7]
 		for i := 5; i < 7; i++ {
-			_, _, _, _ = c.Get(Key(strconv.Itoa(i)))
+			_, _, _ = c.Get(Key(strconv.Itoa(i)))
 		}
 
 		// [6, 5, 9, 8, 7] => [0, 1, 2, 6, 5]
 		for i := 0; i < 3; i++ {
 			s := strconv.Itoa(i)
 			v := []byte(s)
-			_ = c.Set(Key(s), http.Header{}, &v)
+			_ = c.Set(Key(s), v)
 		}
 
-		_, val, ok, _ = c.Get("0")
+		val, ok, _ = c.Get("0")
 		require.True(t, ok)
-		require.Equal(t, []byte("0"), *val)
+		require.Equal(t, []byte("0"), val)
 
-		_, val, ok, _ = c.Get("5")
+		val, ok, _ = c.Get("5")
 		require.True(t, ok)
-		require.Equal(t, []byte("5"), *val)
+		require.Equal(t, []byte("5"), val)
 	})
 	t.Run("additional logic", func(t *testing.T) {
 		c, _ := New(5)
@@ -112,29 +111,29 @@ func TestCache(t *testing.T) {
 		for i := 0; i < 100; i++ {
 			s := strconv.Itoa(i)
 			v := []byte(s)
-			_ = c.Set(Key(s), http.Header{}, &v)
+			_ = c.Set(Key(s), v)
 		}
 
-		_, val, ok, _ := c.Get("95")
+		val, ok, _ := c.Get("95")
 		require.True(t, ok)
-		require.Equal(t, []byte("95"), *val)
+		require.Equal(t, []byte("95"), val)
 
 		// [99, 98, 97, 96, 95] => []
 		_ = c.Clear()
 
-		_, val, ok, _ = c.Get("95")
+		val, ok, _ = c.Get("95")
 		require.False(t, ok)
 		require.Nil(t, val)
 
 		for i := 100; i < 200; i++ {
 			s := strconv.Itoa(i)
 			v := []byte(s)
-			_ = c.Set(Key(s), http.Header{}, &v)
+			_ = c.Set(Key(s), v)
 		}
 
-		_, val, ok, _ = c.Get("195")
+		val, ok, _ = c.Get("195")
 		require.True(t, ok)
-		require.Equal(t, []byte("195"), *val)
+		require.Equal(t, []byte("195"), val)
 	})
 }
 
@@ -150,7 +149,7 @@ func TestCacheMultithreading(t *testing.T) {
 		for i := 0; i < multithreadingItems; i++ {
 			s := strconv.Itoa(i)
 			v := []byte(s)
-			_ = c.Set(Key(s), http.Header{}, &v)
+			_ = c.Set(Key(s), v)
 		}
 	}()
 
@@ -158,7 +157,7 @@ func TestCacheMultithreading(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		for i := 0; i < multithreadingItems; i++ {
-			_, _, _, _ = c.Get(Key(strconv.Itoa(rand.Intn(multithreadingItems))))
+			_, _, _ = c.Get(Key(strconv.Itoa(rand.Intn(multithreadingItems))))
 		}
 	}()
 

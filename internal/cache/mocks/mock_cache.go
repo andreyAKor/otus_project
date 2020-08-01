@@ -7,7 +7,6 @@ package mocks
 import (
 	cache "github.com/andreyAKor/otus_project/internal/cache"
 	gomock "github.com/golang/mock/gomock"
-	http "net/http"
 	reflect "reflect"
 )
 
@@ -35,14 +34,13 @@ func (m *MockCache) EXPECT() *MockCacheMockRecorder {
 }
 
 // Get mocks base method
-func (m *MockCache) Get(key cache.Key) (http.Header, *[]byte, bool, error) {
+func (m *MockCache) Get(key cache.Key) ([]byte, bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(http.Header)
-	ret1, _ := ret[1].(*[]byte)
-	ret2, _ := ret[2].(bool)
-	ret3, _ := ret[3].(error)
-	return ret0, ret1, ret2, ret3
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(bool)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Get indicates an expected call of Get
@@ -52,17 +50,17 @@ func (mr *MockCacheMockRecorder) Get(key interface{}) *gomock.Call {
 }
 
 // Set mocks base method
-func (m *MockCache) Set(key cache.Key, header http.Header, body *[]byte) error {
+func (m *MockCache) Set(key cache.Key, body []byte) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Set", key, header, body)
+	ret := m.ctrl.Call(m, "Set", key, body)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Set indicates an expected call of Set
-func (mr *MockCacheMockRecorder) Set(key, header, body interface{}) *gomock.Call {
+func (mr *MockCacheMockRecorder) Set(key, body interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockCache)(nil).Set), key, header, body)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockCache)(nil).Set), key, body)
 }
 
 // Clear mocks base method

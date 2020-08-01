@@ -139,7 +139,7 @@ func (s Server) body(handler http.Handler) http.Handler {
 }
 
 // Proxing requested preview image to response.
-func (s Server) proxy(h func(w http.ResponseWriter, r *http.Request) (*[]byte, error)) http.HandlerFunc {
+func (s Server) proxy(h func(w http.ResponseWriter, r *http.Request) ([]byte, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		body, err := h(w, r)
 		if err != nil {
@@ -147,15 +147,15 @@ func (s Server) proxy(h func(w http.ResponseWriter, r *http.Request) (*[]byte, e
 			return
 		}
 
-		if body == nil {
+		if len(body) == 0 {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Error().Msg("body is empty")
 			return
 		}
 
-		w.Header().Set("Content-Length", strconv.Itoa(len(*body)))
+		w.Header().Set("Content-Length", strconv.Itoa(len(body)))
 
-		if _, err := w.Write(*body); err != nil {
+		if _, err := w.Write(body); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Error().Err(err).Msg("write fail")
 			return

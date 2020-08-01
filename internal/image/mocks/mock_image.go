@@ -33,10 +33,10 @@ func (m *MockImage) EXPECT() *MockImageMockRecorder {
 }
 
 // Resize mocks base method
-func (m *MockImage) Resize(source *[]byte, width, height int) (*[]byte, error) {
+func (m *MockImage) Resize(source []byte, width, height int) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Resize", source, width, height)
-	ret0, _ := ret[0].(*[]byte)
+	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

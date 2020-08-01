@@ -2,7 +2,6 @@ package cache
 
 import (
 	"io/ioutil"
-	"net/http"
 	"os"
 	"sync"
 
@@ -30,9 +29,8 @@ type lruCache struct {
 }
 
 type cacheItem struct {
-	key    Key
-	header http.Header
-	file   string
+	key  Key
+	file string
 }
 
 func New(capacity int) (Cache, error) {
@@ -49,7 +47,7 @@ func (l *lruCache) Close() error {
 }
 
 // Returns a image data from the cache by key.
-func (l *lruCache) Get(key Key) (http.Header, *[]byte, bool, error) {
+func (l *lruCache) Get(key Key) ([]byte, bool, error) {
 	l.mux.Lock()
 	defer l.mux.Unlock()
 
@@ -58,17 +56,17 @@ func (l *lruCache) Get(key Key) (http.Header, *[]byte, bool, error) {
 
 		content, err := ioutil.ReadFile(i.Value.(*cacheItem).file)
 		if err != nil {
-			return http.Header{}, nil, false, errors.Wrap(err, "reading cache-file fail")
+			return nil, false, errors.Wrap(err, "reading cache-file fail")
 		}
 
-		return i.Value.(*cacheItem).header, &content, true, nil
+		return content, true, nil
 	}
 
-	return http.Header{}, nil, false, nil
+	return nil, false, nil
 }
 
 // Adds a image data to the cache by key.
-func (l *lruCache) Set(key Key, header http.Header, body *[]byte) error {
+func (l *lruCache) Set(key Key, body []byte) error {
 	l.mux.Lock()
 	defer l.mux.Unlock()
 
@@ -81,7 +79,7 @@ func (l *lruCache) Set(key Key, header http.Header, body *[]byte) error {
 		return errors.Wrap(err, "creating cache-file fail")
 	}
 
-	if _, err := tmpfile.Write(*body); err != nil {
+	if _, err := tmpfile.Write(body); err != nil {
 		return errors.Wrap(err, "writing cache-file fail")
 	}
 	if err := tmpfile.Close(); err != nil {
@@ -90,7 +88,7 @@ func (l *lruCache) Set(key Key, header http.Header, body *[]byte) error {
 
 	log.Info().Str("file", tmpfile.Name()).Msg("add cache-file")
 
-	i := l.queue.PushFront(&cacheItem{key, header, tmpfile.Name()})
+	i := l.queue.PushFront(&cacheItem{key, tmpfile.Name()})
 	l.items[key] = i
 
 	if l.queue.Len() > l.capacity {

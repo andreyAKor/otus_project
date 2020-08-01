@@ -55,7 +55,7 @@ func TestProcess(t *testing.T) {
 			c := cacheMocks.NewMockCache(ctrl)
 			c.EXPECT().
 				Get(cache.Key(normalURI)).
-				Return(http.Header{}, nil, false, cacheError)
+				Return(nil, false, cacheError)
 
 			srv, err := New(nil, nil, c, "", 0)
 			require.NoError(t, err)
@@ -136,7 +136,7 @@ func TestProcess(t *testing.T) {
 
 			i := imageMocks.NewMockImage(ctrl)
 			i.EXPECT().
-				Resize(&content, 2000, 200).
+				Resize(content, 2000, 200).
 				Return(nil, imageError)
 
 			c := getEmptyCache(ctrl, normalURI)
@@ -165,7 +165,7 @@ func TestProcess(t *testing.T) {
 			i := getNormalImage(ctrl, 2000, 200)
 			c := getEmptyCache(ctrl, normalURI)
 			c.EXPECT().
-				Set(cache.Key(normalURI), getClientResponseHeaders(), &content).
+				Set(cache.Key(normalURI), content).
 				Return(cacheError)
 
 			srv, err := New(cl, i, c, "", 0)
@@ -192,19 +192,18 @@ func TestProcess(t *testing.T) {
 			c := cacheMocks.NewMockCache(ctrl)
 			c.EXPECT().
 				Get(cache.Key(normalURI)).
-				Return(getClientResponseHeaders(), &content, true, nil)
+				Return(content, true, nil)
 
 			srv, err := New(nil, nil, c, "", 0)
 			require.NoError(t, err)
 
 			res, err := srv.process(w, req)
 			require.NoError(t, err)
-			require.Equal(t, res, &content)
+			require.Equal(t, res, content)
 
 			rsp := w.Result()
 			defer rsp.Body.Close()
 			require.Equal(t, http.StatusOK, rsp.StatusCode)
-			require.Equal(t, getClientResponseHeaders(), rsp.Header)
 		})
 		t.Run("from source", func(t *testing.T) {
 			ctrl := gomock.NewController(t)
@@ -219,7 +218,7 @@ func TestProcess(t *testing.T) {
 			i := getNormalImage(ctrl, 2000, 200)
 			c := getEmptyCache(ctrl, normalURI)
 			c.EXPECT().
-				Set(cache.Key(normalURI), getClientResponseHeaders(), &content).
+				Set(cache.Key(normalURI), content).
 				Return(nil)
 
 			srv, err := New(cl, i, c, "", 0)
@@ -227,12 +226,11 @@ func TestProcess(t *testing.T) {
 
 			res, err := srv.process(w, req)
 			require.NoError(t, err)
-			require.Equal(t, res, &content)
+			require.Equal(t, res, content)
 
 			rsp := w.Result()
 			defer rsp.Body.Close()
 			require.Equal(t, http.StatusOK, rsp.StatusCode)
-			require.Equal(t, getClientResponseHeaders(), rsp.Header)
 		})
 	})
 }
@@ -241,16 +239,9 @@ func getEmptyCache(ctrl *gomock.Controller, uri string) *cacheMocks.MockCache {
 	c := cacheMocks.NewMockCache(ctrl)
 	c.EXPECT().
 		Get(cache.Key(uri)).
-		Return(getClientResponseHeaders(), nil, false, nil)
+		Return(nil, false, nil)
 
 	return c
-}
-
-func getClientResponseHeaders() http.Header {
-	h := http.Header{}
-	h.Add("some-http-header", "some-value")
-
-	return h
 }
 
 func getClientRequestOK(ctrl *gomock.Controller, src string, req *http.Request) *clientMocks.MockClient {
@@ -261,8 +252,7 @@ func getClientRequestOK(ctrl *gomock.Controller, src string, req *http.Request) 
 		Request(src, req).
 		Return(&http.Response{
 			StatusCode: http.StatusOK,
-			Header:     getClientResponseHeaders(),
-		}, &content, nil)
+		}, content, nil)
 
 	return cl
 }
@@ -272,8 +262,8 @@ func getNormalImage(ctrl *gomock.Controller, width, height int) *imageMocks.Mock
 
 	i := imageMocks.NewMockImage(ctrl)
 	i.EXPECT().
-		Resize(&content, width, height).
-		Return(&content, nil)
+		Resize(content, width, height).
+		Return(content, nil)
 
 	return i
 }

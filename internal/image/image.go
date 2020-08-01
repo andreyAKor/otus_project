@@ -18,14 +18,14 @@ func New() (Image, error) {
 	return &image{}, nil
 }
 
-func (i image) Resize(source *[]byte, width, height int) (*[]byte, error) {
-	config, _, err := img.DecodeConfig(bytes.NewReader(*source))
+func (i image) Resize(source []byte, width, height int) ([]byte, error) {
+	config, _, err := img.DecodeConfig(bytes.NewReader(source))
 	if err != nil {
 		return nil, errors.Wrap(err, "image config decoding fail")
 	}
 
 	// Old image
-	imgOld, _, err := img.Decode(bytes.NewReader(*source))
+	imgOld, _, err := img.Decode(bytes.NewReader(source))
 	if err != nil {
 		return nil, errors.Wrap(err, "image decoding fail")
 	}
@@ -48,9 +48,7 @@ func (i image) Resize(source *[]byte, width, height int) (*[]byte, error) {
 		return nil, errors.Wrap(err, "image encoding fail")
 	}
 
-	res := buf.Bytes()
-
-	return &res, nil
+	return buf.Bytes(), nil
 }
 
 func (i image) resizing(imgOld img.Image, newImg *img.RGBA, oldSize, newSize img.Point) {
