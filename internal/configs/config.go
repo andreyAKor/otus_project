@@ -33,12 +33,24 @@ type Config struct {
 
 		// Port
 		Port int
+
+		// Maximum content size limit
+		BodyLimit int
 	}
 
 	// Client settings
 	Client struct {
 		// Client connection timeout
 		Timeout string
+
+		// Maximum content size limit
+		BodyLimit int
+	}
+
+	// Image settings
+	Image struct {
+		// Miximum image size
+		MaxWidth, MaxHeight int
 	}
 
 	// Cache settings

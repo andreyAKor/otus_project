@@ -15,16 +15,17 @@ const defaultSchema = "http://"
 var _ Client = (*client)(nil)
 
 type client struct {
-	timeout time.Duration
+	timeout   time.Duration
+	bodyLimit int
 }
 
-func New(timeout string) (Client, error) {
+func New(timeout string, bodyLimit int) (Client, error) {
 	timeoutDur, err := time.ParseDuration(timeout)
 	if err != nil {
 		return nil, errors.Wrapf(err, "request timeout parsing fail (%s)", timeout)
 	}
 
-	return &client{timeoutDur}, nil
+	return &client{timeoutDur, bodyLimit}, nil
 }
 
 // Make request to source.
@@ -90,7 +91,7 @@ func (c *client) request(client *http.Client, req *http.Request) (*http.Response
 	}
 	defer rsp.Body.Close()
 
-	content, err := ioutil.ReadAll(rsp.Body)
+	content, err := ioutil.ReadAll(io.LimitReader(rsp.Body, int64(c.bodyLimit)))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "reading from client fail")
 	}

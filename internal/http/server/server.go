@@ -18,10 +18,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	limitReadBody int64 = 1024 * 1_000
-)
-
 var (
 	ErrServerNotInit = errors.New("server not init")
 
@@ -29,13 +25,14 @@ var (
 )
 
 type Server struct {
-	client client.Client
-	image  image.Image
-	cache  cache.Cache
-	host   string
-	port   int
-	server *http.Server
-	ctx    context.Context
+	client    client.Client
+	image     image.Image
+	cache     cache.Cache
+	host      string
+	port      int
+	bodyLimit int
+	server    *http.Server
+	ctx       context.Context
 }
 
 func New(
@@ -44,13 +41,15 @@ func New(
 	cache cache.Cache,
 	host string,
 	port int,
+	bodyLimit int,
 ) (*Server, error) {
 	return &Server{
-		client: client,
-		image:  image,
-		cache:  cache,
-		host:   host,
-		port:   port,
+		client:    client,
+		image:     image,
+		cache:     cache,
+		host:      host,
+		port:      port,
+		bodyLimit: bodyLimit,
 	}, nil
 }
 
@@ -123,10 +122,11 @@ func (s Server) logger(handler http.Handler) http.Handler {
 }
 
 // Middleware preparing body request.
-func (s Server) body(handler http.Handler) http.Handler {
+func (s *Server) body(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(io.LimitReader(r.Body, limitReadBody))
+		body, err := ioutil.ReadAll(io.LimitReader(r.Body, int64(s.bodyLimit)))
 		if err != nil {
+			log.Error().Err(err).Msg("body read fail")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

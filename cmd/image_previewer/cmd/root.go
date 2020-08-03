@@ -72,19 +72,19 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Init image
-	image, err := image.New()
+	image, err := image.New(c.Image.MaxWidth, c.Image.MaxHeight)
 	if err != nil {
 		log.Fatal().Err(err).Send()
 	}
 
 	// Init http-client
-	client, err := client.New(c.Client.Timeout)
+	client, err := client.New(c.Client.Timeout, c.Client.BodyLimit)
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't initialize http-client")
 	}
 
 	// Init http-server
-	server, err := server.New(client, image, cache, c.HTTP.Host, c.HTTP.Port)
+	server, err := server.New(client, image, cache, c.HTTP.Host, c.HTTP.Port, c.HTTP.BodyLimit)
 	if err != nil {
 		log.Fatal().Err(err).Msg("can't initialize http-server")
 	}

@@ -50,3 +50,31 @@ func TestCalcOffsets(t *testing.T) {
 		})
 	})
 }
+
+func TestValidateImageSize(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		i := &image{0, 0}
+		err := i.validateImageSize(0, 0)
+		require.Nil(t, err)
+
+		err = i.validateImageSize(1, 1)
+		require.Equal(t, err, ErrImageSizeLarge)
+	})
+	t.Run("normal", func(t *testing.T) {
+		i := &image{1, 1}
+		err := i.validateImageSize(0, 0)
+		require.Nil(t, err)
+
+		err = i.validateImageSize(1, 1)
+		require.Nil(t, err)
+
+		err = i.validateImageSize(2, 1)
+		require.Equal(t, err, ErrImageSizeLarge)
+
+		err = i.validateImageSize(1, 2)
+		require.Equal(t, err, ErrImageSizeLarge)
+
+		err = i.validateImageSize(2, 2)
+		require.Equal(t, err, ErrImageSizeLarge)
+	})
+}

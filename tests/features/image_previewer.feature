@@ -25,6 +25,18 @@ Feature: Image previewer in work
 		When I send "GET" request to "http://image_previewer:6080/100/200/nginx/image.jpg"
 		Then The response code should be 200
 
-	Scenario: Image size to small
-		When I send "GET" request to "http://image_previewer:6080/3428/2414/nginx/image.jpg"
+	Scenario: Image size too small
+		When I send "GET" request to "http://image_previewer:6080/2285/1609/nginx/image.jpg"
 		Then The response code should be 200
+
+	Scenario: Input image size too large
+		When I send "GET" request to "http://image_previewer:6080/200/100/nginx/large_image.jpg"
+		Then The response code should be 500
+
+	Scenario: Output image size too large
+		When I send "GET" request to "http://image_previewer:6080/3428/2414/nginx/image.jpg"
+		Then The response code should be 500
+
+	Scenario: Input image content too large
+		When I send "GET" request to "http://image_previewer:6080/200/100/nginx/super_large_image.jpg"
+		Then The response code should be 500

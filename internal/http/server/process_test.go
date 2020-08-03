@@ -31,7 +31,7 @@ func TestProcess(t *testing.T) {
 
 			c := getEmptyCache(ctrl, emptyURI)
 
-			srv, err := New(nil, nil, c, "", 0)
+			srv, err := New(nil, nil, c, "", 0, 0)
 			require.NoError(t, err)
 
 			req := httptest.NewRequest("GET", emptyURI, nil)
@@ -57,7 +57,7 @@ func TestProcess(t *testing.T) {
 				Get(cache.Key(normalURI)).
 				Return(nil, false, cacheError)
 
-			srv, err := New(nil, nil, c, "", 0)
+			srv, err := New(nil, nil, c, "", 0, 0)
 			require.NoError(t, err)
 
 			req := httptest.NewRequest("GET", normalURI, nil)
@@ -86,7 +86,7 @@ func TestProcess(t *testing.T) {
 
 			c := getEmptyCache(ctrl, normalURI)
 
-			srv, err := New(cl, nil, c, "", 0)
+			srv, err := New(cl, nil, c, "", 0, 0)
 			require.NoError(t, err)
 
 			_, err = srv.process(w, req)
@@ -112,7 +112,7 @@ func TestProcess(t *testing.T) {
 
 			c := getEmptyCache(ctrl, normalURI)
 
-			srv, err := New(cl, nil, c, "", 0)
+			srv, err := New(cl, nil, c, "", 0, 0)
 			require.NoError(t, err)
 
 			_, err = srv.process(w, req)
@@ -141,7 +141,7 @@ func TestProcess(t *testing.T) {
 
 			c := getEmptyCache(ctrl, normalURI)
 
-			srv, err := New(cl, i, c, "", 0)
+			srv, err := New(cl, i, c, "", 0, 0)
 			require.NoError(t, err)
 
 			_, err = srv.process(w, req)
@@ -168,7 +168,7 @@ func TestProcess(t *testing.T) {
 				Set(cache.Key(normalURI), content).
 				Return(cacheError)
 
-			srv, err := New(cl, i, c, "", 0)
+			srv, err := New(cl, i, c, "", 0, 0)
 			require.NoError(t, err)
 
 			_, err = srv.process(w, req)
@@ -194,7 +194,7 @@ func TestProcess(t *testing.T) {
 				Get(cache.Key(normalURI)).
 				Return(content, true, nil)
 
-			srv, err := New(nil, nil, c, "", 0)
+			srv, err := New(nil, nil, c, "", 0, 0)
 			require.NoError(t, err)
 
 			res, err := srv.process(w, req)
@@ -221,7 +221,7 @@ func TestProcess(t *testing.T) {
 				Set(cache.Key(normalURI), content).
 				Return(nil)
 
-			srv, err := New(cl, i, c, "", 0)
+			srv, err := New(cl, i, c, "", 0, 0)
 			require.NoError(t, err)
 
 			res, err := srv.process(w, req)

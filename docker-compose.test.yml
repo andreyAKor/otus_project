@@ -18,6 +18,8 @@ services:
   image_previewer:
     environment:
       CACHE_CAPACITY: 3
+      IMAGE_MAXWIDTH: 3000
+      IMAGE_MAXHEIGHT: 2000
     networks:
       - nginx
 

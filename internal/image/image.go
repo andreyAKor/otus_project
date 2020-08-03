@@ -9,19 +9,32 @@ import (
 	"github.com/pkg/errors"
 )
 
-var _ Image = (*image)(nil)
+var (
+	ErrImageSizeLarge = errors.New("image size is too large")
+
+	_ Image = (*image)(nil)
+)
 
 type image struct {
+	maxWidth, maxHeight int
 }
 
-func New() (Image, error) {
-	return &image{}, nil
+func New(maxWidth, maxHeight int) (Image, error) {
+	return &image{maxWidth, maxHeight}, nil
 }
 
 func (i image) Resize(source []byte, width, height int) ([]byte, error) {
+	if err := i.validateImageSize(width, height); err != nil {
+		return nil, errors.Wrap(err, "validation output image size fail")
+	}
+
 	config, _, err := img.DecodeConfig(bytes.NewReader(source))
 	if err != nil {
 		return nil, errors.Wrap(err, "image config decoding fail")
+	}
+
+	if err := i.validateImageSize(config.Width, config.Height); err != nil {
+		return nil, errors.Wrap(err, "validation input image size fail")
 	}
 
 	// Old image
@@ -96,6 +109,14 @@ func (i image) calcOffsets(
 	}
 	if oldHeight != 0 && innerHeight != 0 {
 		sizeY = oldHeight / innerHeight
+	}
+
+	return
+}
+
+func (i *image) validateImageSize(width, height int) (err error) {
+	if width > i.maxWidth || height > i.maxHeight {
+		err = ErrImageSizeLarge
 	}
 
 	return
