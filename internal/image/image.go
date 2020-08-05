@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	ErrImageSizeLarge = errors.New("image size is too large")
+	ErrOutputImageSizeLarge = errors.New("validation output image size fail")
+	ErrInputImageSizeLarge  = errors.New("validation input image size fail")
 
 	_ Image = (*image)(nil)
 )
@@ -24,8 +25,8 @@ func New(maxWidth, maxHeight int) (Image, error) {
 }
 
 func (i image) Resize(source []byte, width, height int) ([]byte, error) {
-	if err := i.validateImageSize(width, height); err != nil {
-		return nil, errors.Wrap(err, "validation output image size fail")
+	if !i.ValidateImageSize(width, height) {
+		return nil, ErrOutputImageSizeLarge
 	}
 
 	config, _, err := img.DecodeConfig(bytes.NewReader(source))
@@ -33,8 +34,8 @@ func (i image) Resize(source []byte, width, height int) ([]byte, error) {
 		return nil, errors.Wrap(err, "image config decoding fail")
 	}
 
-	if err := i.validateImageSize(config.Width, config.Height); err != nil {
-		return nil, errors.Wrap(err, "validation input image size fail")
+	if !i.ValidateImageSize(config.Width, config.Height) {
+		return nil, ErrInputImageSizeLarge
 	}
 
 	// Old image
@@ -114,10 +115,10 @@ func (i image) calcOffsets(
 	return
 }
 
-func (i *image) validateImageSize(width, height int) (err error) {
+func (i *image) ValidateImageSize(width, height int) bool {
 	if width > i.maxWidth || height > i.maxHeight {
-		err = ErrImageSizeLarge
+		return false
 	}
 
-	return
+	return true
 }

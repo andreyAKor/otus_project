@@ -46,3 +46,17 @@ func (mr *MockImageMockRecorder) Resize(source, width, height interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Resize", reflect.TypeOf((*MockImage)(nil).Resize), source, width, height)
 }
+
+// ValidateImageSize mocks base method
+func (m *MockImage) ValidateImageSize(width, height int) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateImageSize", width, height)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// ValidateImageSize indicates an expected call of ValidateImageSize
+func (mr *MockImageMockRecorder) ValidateImageSize(width, height interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateImageSize", reflect.TypeOf((*MockImage)(nil).ValidateImageSize), width, height)
+}

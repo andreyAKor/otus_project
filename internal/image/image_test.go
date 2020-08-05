@@ -54,27 +54,27 @@ func TestCalcOffsets(t *testing.T) {
 func TestValidateImageSize(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		i := &image{0, 0}
-		err := i.validateImageSize(0, 0)
-		require.Nil(t, err)
+		res := i.ValidateImageSize(0, 0)
+		require.True(t, res)
 
-		err = i.validateImageSize(1, 1)
-		require.Equal(t, err, ErrImageSizeLarge)
+		res = i.ValidateImageSize(1, 1)
+		require.False(t, res)
 	})
 	t.Run("normal", func(t *testing.T) {
 		i := &image{1, 1}
-		err := i.validateImageSize(0, 0)
-		require.Nil(t, err)
+		res := i.ValidateImageSize(0, 0)
+		require.True(t, res)
 
-		err = i.validateImageSize(1, 1)
-		require.Nil(t, err)
+		res = i.ValidateImageSize(1, 1)
+		require.True(t, res)
 
-		err = i.validateImageSize(2, 1)
-		require.Equal(t, err, ErrImageSizeLarge)
+		res = i.ValidateImageSize(2, 1)
+		require.False(t, res)
 
-		err = i.validateImageSize(1, 2)
-		require.Equal(t, err, ErrImageSizeLarge)
+		res = i.ValidateImageSize(1, 2)
+		require.False(t, res)
 
-		err = i.validateImageSize(2, 2)
-		require.Equal(t, err, ErrImageSizeLarge)
+		res = i.ValidateImageSize(2, 2)
+		require.False(t, res)
 	})
 }

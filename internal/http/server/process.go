@@ -8,7 +8,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-var ErrBadGateway = errors.New("bad gateway")
+var (
+	ErrImageSizeLarge = errors.New("image size is too large")
+	ErrBadGateway     = errors.New("bad gateway")
+)
 
 // Get image and process preparing preview image.
 func (s *Server) process(w http.ResponseWriter, r *http.Request) ([]byte, error) {
@@ -35,6 +38,11 @@ func (s *Server) preparingImage(w http.ResponseWriter, r *http.Request) ([]byte,
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return nil, errors.Wrap(err, "request uri parsing fail")
+	}
+
+	if !s.image.ValidateImageSize(ir.Width, ir.Height) {
+		w.WriteHeader(http.StatusBadRequest)
+		return nil, ErrImageSizeLarge
 	}
 
 	// Retrieving image content

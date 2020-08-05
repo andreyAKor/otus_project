@@ -84,9 +84,10 @@ func TestProcess(t *testing.T) {
 				Request(normalSource, req).
 				Return(nil, nil, clientError)
 
+			i := getEmptyImage(ctrl, 2000, 200)
 			c := getEmptyCache(ctrl, normalURI)
 
-			srv, err := New(cl, nil, c, "", 0, 0)
+			srv, err := New(cl, i, c, "", 0, 0)
 			require.NoError(t, err)
 
 			_, err = srv.process(w, req)
@@ -110,9 +111,10 @@ func TestProcess(t *testing.T) {
 					StatusCode: http.StatusNotFound,
 				}, nil, nil)
 
+			i := getEmptyImage(ctrl, 2000, 200)
 			c := getEmptyCache(ctrl, normalURI)
 
-			srv, err := New(cl, nil, c, "", 0, 0)
+			srv, err := New(cl, i, c, "", 0, 0)
 			require.NoError(t, err)
 
 			_, err = srv.process(w, req)
@@ -134,7 +136,7 @@ func TestProcess(t *testing.T) {
 
 			cl := getClientRequestOK(ctrl, normalSource, req)
 
-			i := imageMocks.NewMockImage(ctrl)
+			i := getEmptyImage(ctrl, 2000, 200)
 			i.EXPECT().
 				Resize(content, 2000, 200).
 				Return(nil, imageError)
@@ -162,7 +164,7 @@ func TestProcess(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			cl := getClientRequestOK(ctrl, normalSource, req)
-			i := getNormalImage(ctrl, 2000, 200)
+			i := getNormalImage(ctrl, 2000, 200, 2000, 200)
 			c := getEmptyCache(ctrl, normalURI)
 			c.EXPECT().
 				Set(cache.Key(normalURI), content).
@@ -215,7 +217,7 @@ func TestProcess(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			cl := getClientRequestOK(ctrl, normalSource, req)
-			i := getNormalImage(ctrl, 2000, 200)
+			i := getNormalImage(ctrl, 2000, 200, 2000, 200)
 			c := getEmptyCache(ctrl, normalURI)
 			c.EXPECT().
 				Set(cache.Key(normalURI), content).
@@ -257,13 +259,26 @@ func getClientRequestOK(ctrl *gomock.Controller, src string, req *http.Request) 
 	return cl
 }
 
-func getNormalImage(ctrl *gomock.Controller, width, height int) *imageMocks.MockImage {
+func getEmptyImage(ctrl *gomock.Controller, vldWidth, vldHeight int) *imageMocks.MockImage {
+	i := imageMocks.NewMockImage(ctrl)
+	i.EXPECT().
+		ValidateImageSize(vldWidth, vldHeight).
+		Return(true)
+
+	return i
+}
+
+func getNormalImage(ctrl *gomock.Controller, rszWidth, rszHeight, vldWidth, vldHeight int) *imageMocks.MockImage {
 	content := []byte(imageContent)
 
 	i := imageMocks.NewMockImage(ctrl)
 	i.EXPECT().
-		Resize(content, width, height).
+		Resize(content, rszWidth, rszHeight).
 		Return(content, nil)
+
+	i.EXPECT().
+		ValidateImageSize(vldWidth, vldHeight).
+		Return(true)
 
 	return i
 }

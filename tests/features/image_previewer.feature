@@ -35,7 +35,7 @@ Feature: Image previewer in work
 
 	Scenario: Output image size too large
 		When I send "GET" request to "http://image_previewer:6080/3428/2414/nginx/image.jpg"
-		Then The response code should be 500
+		Then The response code should be 400
 
 	Scenario: Input image content too large
 		When I send "GET" request to "http://image_previewer:6080/200/100/nginx/super_large_image.jpg"
